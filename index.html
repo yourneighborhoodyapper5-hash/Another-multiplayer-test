@@ -7,27 +7,52 @@
   <title>Project EAGLE</title>
   <style>
     * { box-sizing: border-box; }
+
     html, body {
       margin: 0;
       width: 100%;
       height: 100%;
-      overflow: hidden;
       background: #101418;
+      color: #fff;
+      font-family: system-ui, sans-serif;
     }
+
+    #loading {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-content: center;
+      text-align: center;
+      gap: 12px;
+      background: #101418;
+      z-index: 1;
+    }
+
+    #loading p { color: #aab4c0; }
+
     iframe {
-      display: block;
+      position: fixed;
+      inset: 0;
       width: 100%;
       height: 100%;
       border: 0;
+      background: #101418;
     }
   </style>
 </head>
 <body>
+  <div id="loading">
+    <h1>PROJECT EAGLE</h1>
+    <p>Connecting to the game server...</p>
+    <p>If this stays here, check whether Vega is running.</p>
+  </div>
+
   <iframe
     src="https://wendy-personals-noble-untitled.trycloudflare.com/"
     title="Project EAGLE"
     allow="fullscreen; gamepad"
-    allowfullscreen>
+    allowfullscreen
+    onload="document.getElementById('loading').style.display='none'">
   </iframe>
 </body>
 </html>
