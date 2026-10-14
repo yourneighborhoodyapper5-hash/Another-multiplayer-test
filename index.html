@@ -2797,7 +2797,7 @@ class Input {
     this.keys = new Set(); this.active = false;           // active: gameplay owns the keyboard
     this.lookX = 0; this.lookY = 0;
     this.mouseBreak = false; this.touchBreak = false; this.touchJump = false;
-    this.edges = { place: false, inventory: false, pause: false, debug: false, hotbar: 0, hotbarSet: -1 };
+    this.edges = { place: false, inventory: false, pause: false, debug: false, hotbar: 0, hotbarSet: -1, drop: false };
     this.joy = { id: null, ox: 0, oy: 0, x: 0, y: 0 };
     this.lookTouch = { id: null, x: 0, y: 0 };
     this.out = { moveX: 0, moveY: 0, jump: false, sprint: false, lookX: 0, lookY: 0, breakHeld: false, place: false, inventory: false, pause: false, debug: false, hotbar: 0, hotbarSet: -1, usingTouch: false, usingPad: false };
@@ -2899,6 +2899,7 @@ class Input {
     hold('t-mine', 'Mine', (v) => { this.touchBreak = v; });
     hold('t-place', 'Use', (v) => { if (v) this.edges.place = true; });
     hold('t-inv', 'Bag', (v) => { if (v) this.edges.inventory = true; });
+    hold('t-drop', 'Drop', (v) => { if (v) this.edges.drop = true; });
     hold('t-pause', 'Menu', (v) => { if (v) this.edges.pause = true; });
   }
   setTouchVisible(v) { this.root.style.display = v ? 'block' : 'none'; if (!v) { this.joy.id = null; this.joy.x = this.joy.y = 0; this.touchBreak = this.touchJump = false; } }
@@ -2921,6 +2922,7 @@ class Input {
     if (edge(6)) this.edges.place = true;
     if (edge(5)) this.edges.hotbar += 1; if (edge(4)) this.edges.hotbar -= 1;
     if (edge(3)) this.edges.inventory = true;
+    if (edge(2)) this.edges.drop = true;
     if (edge(9)) this.edges.pause = true;
     return mx !== 0 || my !== 0 || lx !== 0 || ly !== 0 || b(0) || b(7);
   }
@@ -2937,8 +2939,8 @@ class Input {
     o.usingPad = this._pad(dt, o);
     o.usingTouch = this.touchSeen;
     o.lookX = this.lookX; o.lookY = this.lookY; this.lookX = this.lookY = 0;
-    o.place = E.place; o.inventory = E.inventory; o.pause = E.pause; o.debug = E.debug; o.hotbar = E.hotbar; o.hotbarSet = E.hotbarSet;
-    E.place = E.inventory = E.pause = E.debug = false; E.hotbar = 0; E.hotbarSet = -1;
+    o.place = E.place; o.drop = E.drop; o.inventory = E.inventory; o.pause = E.pause; o.debug = E.debug; o.hotbar = E.hotbar; o.hotbarSet = E.hotbarSet;
+    E.place = E.drop = E.inventory = E.pause = E.debug = false; E.hotbar = 0; E.hotbarSet = -1;
     return o;
   }
 
@@ -4244,6 +4246,15 @@ class Game {
     const p = this.player, w = this.world;
     if (inp.hotbarSet >= 0) this.selectHotbar(inp.hotbarSet);
     if (inp.hotbar) this.selectHotbar((this.inv.selected + inp.hotbar + 9) % 9);
+    if (inp.drop) {
+      const id = this.inv.held();
+      if (id) {
+        const d = p.lookDir();
+        this.inv.takeHeld();
+        this.drops.spawn(p.x + d[0] * 0.8, p.eyeY, p.z + d[2] * 0.8, id, 1, d[0] * 2, d[2] * 2);
+        this.audio.play('place');
+      }
+    }
 
     const creativeY = p.y;
     p.update(dt, inp, w, { autoJump: this.settings.autoJump });
