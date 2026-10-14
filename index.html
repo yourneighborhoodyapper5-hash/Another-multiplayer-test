@@ -4049,8 +4049,7 @@ class Game {
   _mpDefaultUrl() {
     const q = /[?&]mp=([^&]+)/.exec(location.search || '');
     if (q) return decodeURIComponent(q[1]);
-    if (location.host) return (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + MP_PATH;
-    return 'wss://warner-freeware-rewards-complete.trycloudflare.com' + MP_PATH;
+    return 'wss://vega.tail99932c.ts.net:8443' + MP_PATH;
   }
 
   _mpOpen(url, name) {
